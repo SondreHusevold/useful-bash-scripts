@@ -4,9 +4,7 @@
 echo "Update all scripts? (y/n)"
 read y
 
-cd Scripts
-
-for a in *; do
+for a in ./Scripts/*; do
 	if [ $y = "n" ]
 	then
 		echo "Update $a? (y/n)"
