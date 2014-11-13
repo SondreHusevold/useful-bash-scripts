@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo "Update all scripts?"
+read y
+
+cd Scripts
+
+for a in *; do
+	chmod +x $a
+	cp -r $a /usr/local/bin/
+done
+
+echo "Complete!"

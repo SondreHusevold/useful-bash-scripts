@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo "Update mpv?"
+read y
+
+brew rm mpv && brew install --HEAD --with-bundle --with-bluray-support --with-libdvdread --with-libquvi --with-little-cms2 --with-lua mpv
+
+brew linkapps mpv
