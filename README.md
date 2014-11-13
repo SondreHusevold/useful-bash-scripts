@@ -26,7 +26,7 @@ Update-mpv
 
 Requirement: OS X, Homebrew and mpv built with --HEAD.
 
-This is a script to automatically remove a current HEAD built mpv and updates to the newest build through brew.
+This is a script to automatically remove a current HEAD built [mpv](https://mpv.io) and updates to the newest build through brew.
 
 
 ScriptUpdater

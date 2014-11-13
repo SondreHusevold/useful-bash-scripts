@@ -1,4 +1,5 @@
 #!/bin/bash
+# Updates mpv via brew
 
 echo "Update mpv?"
 read y
