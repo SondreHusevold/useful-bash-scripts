@@ -1,0 +1,57 @@
+#!/bin/bash
+# Converts files to WebM
+# Made and tested using OS X, works most likely in GNU/Linux.
+# Windows a Shit.
+
+echo "Filepath (Drag & Drop): "
+read filepath
+
+echo "From (Hours:Minutes:Seconds): "
+read from
+
+echo "Duration (Seconds):"
+read toarg
+
+echo "Quality (Number): "
+read quality
+
+echo "Scale (Width): "
+read scale
+
+echo "Sound? (y/n)"
+read soundchoice
+
+if [ $soundchoice = "n" ] 
+then
+	sound="-an"
+else
+	sound=""
+fi
+
+echo "Extra compression? (y/n)"
+read extracomp
+
+if [ $extracomp = "y" ]
+then
+	echo "Insert compression (0-51): "
+	read extraquality
+else
+	extraquality="4"
+fi
+
+echo "Output filename: "
+read outputfile
+
+echo "Subs? (y/n)"
+read subschoice
+
+if [ $subschoice = "y" ] 
+then
+	ffmpeg -ss "$from" -i "$filepath" -t "$toarg" -vf ass subs.ass
+	ffmpeg -ss "$from" -i "$filepath" -t "$toarg" -vcodec libvpx -crf "$extraquality" -vf scale="$scale":-1,ass=subs.ass -b:v "$quality"K $sound ~/Desktop/"$outputfile".webm
+	rm subs.ass
+else
+	ffmpeg -ss "$from" -i "$filepath" -t "$toarg" -crf "$extraquality" -vf scale="$scale":-1 -b:v "$quality"K $sound ~/Desktop/"$outputfile".webm
+fi
+
+echo "Complete as "$outputfile".webm"

@@ -1,0 +1,40 @@
+#!/bin/bash
+# Awesome music conversion script.
+
+echo "Convert what format? : "
+read from
+
+echo "To format? : "
+read to
+
+echo "Subdirectories? (y/n) : "
+read subdirectories
+
+mkdir $to
+tofolderpath="$PWD"
+
+if [ $subdirectories = "n" ] 
+then
+	for a in *.$from; do
+		ffmpeg -i "$a" -vn "$to/${a/$from/$to}"
+	done
+else
+	for subdir in *; do
+		cd "$subdir"
+	  	
+		if [ $to = "mp3" ]
+		then
+	  		for a in *.$from; do
+				ffmpeg -i "$a" -b:a 320k "$tofolderpath/$to/${a/$from/$to}"
+			done
+  		else
+			for a in *.$from; do
+				ffmpeg -i "$a" -vn "$tofolderpath/$to/${a/$from/$to}"
+			done
+		fi
+  		cd "$tofolderpath"
+	done
+fi
+
+echo
+echo "Complete!"
