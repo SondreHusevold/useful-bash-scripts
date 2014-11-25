@@ -35,3 +35,10 @@ ScriptUpdater
 Requirement: This repo.
 
 This script will automatically set all the scripts to executable and copy/replace them in /usr/local/bin for easy access in the terminal.
+
+Install
+-------
+
+Requirement: OS X
+
+This script automatically installs and configures OS X to my liking when reinstalled. This is tweaked from [Ryan's original script](https://github.com/ryanmaclean/OSX-Post-Install-Script) all credits go to him.

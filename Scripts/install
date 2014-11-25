@@ -1,5 +1,7 @@
 ## THIS SCRIPT ASSUMES YOU'VE COPIED YOUR OLD PROFILE
 ## AND LOADED IT ALREADY ON THE NEW SYSTEM
+## ORIGINALLY FROM https://github.com/ryanmaclean/OSX-Post-Install-Script ALL CREDITS TO RYAN.
+
 
 ## Allow press and hold keys
 sudo defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
