@@ -1,5 +1,6 @@
 #!/bin/bash
 # Updates mpv via brew
+# Requires mpv to already be installed!
 
 echo "Update mpv?"
 read y
