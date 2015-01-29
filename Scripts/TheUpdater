@@ -1,0 +1,38 @@
+#/bin/bash
+
+echo "Mount EFI? (y/n)"
+read mount
+
+if [ $mount = "y" ]
+then
+	mkdir /Volumes/EFI/
+        sudo mount -t msdos /dev/disk0s1 /Volumes/EFI
+fi
+
+echo "What do you want to update? (Clover/FakeSMC/mpv)"
+read update
+
+if [ $update = "Clover" ]	#Clover upgrader
+then
+	cp -r /EFI/BOOT /Volumes/EFI/EFI/
+	cp -r /EFI/CLOVER/drivers64UEFI /Volumes/EFI/EFI/CLOVER/
+	cp -r /EFI/CLOVER/OEM /Volumes/EFI/EFI/CLOVER/
+	cp -r /EFI/CLOVER/doc /Volumes/EFI/EFI/CLOVER/
+	cp -r /EFI/CLOVER/ROM /Volumes/EFI/EFI/CLOVER/
+	cp -r /EFI/CLOVER/misc /Volumes/EFI/EFI/CLOVER/
+	cp -r /EFI/CLOVER/tools /Volumes/EFI/EFI/CLOVER/
+	cp /EFI/CLOVER/CLOVERIA32.efi /Volumes/EFI/EFI/CLOVER/
+	cp /EFI/CLOVER/CLOVERX64.efi /Volumes/EFI/EFI/CLOVER/
+	sudo rm -rf /EFI
+elif [ $update = "FakeSMC" ]	# Upgrades FakeSMC by moving the updated kext to Clover's main kext folder.
+then
+	rm -R /Volumes/EFI/EFI/CLOVER/kexts/10.10/FakeSMC.kext
+	sudo mv /System/Library/Extensions/FakeSMC.kext /Volumes/EFI/EFI/CLOVER/kexts/10.10/FakeSMC.kext
+
+elif [ $update = "mpv" ]	# Updates mpv via brew
+then	
+	brew rm mpv && brew install --HEAD --with-bundle --with-bluray-support --with-libdvdread --with-libquvi --with-little-cms2 --with-lua --with-libdvdread --with-official-libass mpv
+	brew linkapps mpv
+else
+	echo "Exiting..."
+fi
