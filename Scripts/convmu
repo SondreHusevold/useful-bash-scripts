@@ -10,30 +10,81 @@ read to
 echo "Subdirectories? (y/n) : "
 read subdirectories
 
-mkdir $to
 tofolderpath="$PWD"
+
+cover=false
 
 if [ $subdirectories = "n" ] 
 then
+	mkdir $to
 	for a in *.$from; do
-		ffmpeg -i "$a" -vn "$to/${a/$from/$to}"
-	done
-else
-	for subdir in *; do
-		cd "$subdir"
-	  	
+		if [ $cover = false ]
+       		then
+                	ffmpeg -i "$a" -an -vcodec copy "$to/cover.jpg"
+                	cover=true
+        	fi 
+
 		if [ $to = "mp3" ]
 		then
-	  		for a in *.$from; do
-				ffmpeg -i "$a" -b:a 320k "$tofolderpath/$to/${a/$from/$to}"
-			done
+			ffmpeg -i "$a" -b:a 320k "$tofolderpath/$to/${a/$from/$to}"
   		else
-			for a in *.$from; do
-				ffmpeg -i "$a" -vn "$tofolderpath/$to/${a/$from/$to}"
-			done
+			ffmpeg -i "$a" -vn "$tofolderpath/$to/${a/$from/$to}"
 		fi
-  		cd "$tofolderpath"
 	done
+else
+	echo "Seperate? (y/n)"
+	read seperate
+	if [ $seperate = "n" ]
+	then
+		mkdir "$to"
+		for subdir in *; do
+			if [[ -d $subdir ]];
+			then
+				cd "$subdir"
+				if [ $to = "mp3" ]
+				then
+		  			for a in *.$from; do
+						ffmpeg -i "$a" -b:a 320k "$tofolderpath/$to/${a/$from/$to}"
+					done
+				elif [ $to = "opus" ]
+				then
+					for a in *.$from; do
+						ffmpeg -i "$a" -vn -b:a 128k "$tofolderpath/$to/${a/$from/$to}"
+					done
+				else
+					for a in *.$from; do
+						ffmpeg -i "$a" -vn "$tofolderpath/$to/${a/$from/$to}"
+					done
+	  			cd "$tofolderpath"
+	  			fi
+			fi
+		done
+	else
+		for subdir in *; do
+			if [[ -d $subdir ]];
+			then
+				cd "$subdir"
+				mkdir $to
+		  	
+				if [ $to = "mp3" ]
+					then
+		  			for a in *.$from; do
+						ffmpeg -i "$a" -b:a 320k "$to/${a/$from/$to}"
+					done
+	  			elif [ $to = "opus" ]
+	  			then
+					for a in *.$from; do
+						ffmpeg -i "$a" -vn -b:a 128k "$to/${a/$from/$to}"
+					done
+				else
+					for a in *.$from; do
+						ffmpeg -i "$a" -vn "$to/${a/$from/$to}"
+					done
+				fi
+	  			cd "$tofolderpath"
+			fi
+		done
+	fi
 fi
 
 echo

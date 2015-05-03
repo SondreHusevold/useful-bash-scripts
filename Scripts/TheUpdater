@@ -31,7 +31,7 @@ then
 
 elif [ $update = "mpv" ]	# Updates mpv via brew
 then	
-	brew rm mpv && brew install --HEAD --with-bundle --with-bluray-support --with-libdvdread --with-libquvi --with-little-cms2 --with-lua --with-libdvdread --with-official-libass mpv
+	brew rm mpv && brew install --HEAD --with-libaacs --with-libbluray --with-libbs2b --with-libcaca --with-libdvdnav --with-libdvdread --with-official-libass --with-vapoursynth --with-x11 mpv
 	brew linkapps mpv
 else
 	echo "Exiting..."

@@ -1,0 +1,20 @@
+#/bin/bash
+
+DATE=`date +%d-%m-%Y`
+BackupPath="/Volumes/HDD/Games/Consoles/3DS/Save Backups/Save Backup $DATE"
+
+mkdir "$BackupPath"
+
+savecounter=0
+
+echo "Will now backup into $BackupPath. Press any key to continue..."
+read proceed
+
+for save in /Volumes/GATEWAYNAND/*.sav; do
+	cp $save "$BackupPath"
+	echo "$save copied."
+	((savecounter++))
+done
+
+echo 
+echo "Save backup complete. Saves copied: $savecounter"
