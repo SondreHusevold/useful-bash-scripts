@@ -3,15 +3,6 @@ Bash Scripts
 
 This is a collection of bash scripts I've made myself. These are used typically for batch converting music or webm files.
 
-3DSbackuper
------------
-
-Requirement: A 3DS and a Gateway card
-
-This script automatically copies all the saves from the root directory of the 3DS' SD card with a date. 
-
-This is automated by the use of a LaunchAgent script on OS X.
-
 
 Conv
 -----
