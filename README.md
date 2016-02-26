@@ -15,27 +15,15 @@ This is a conversion script to convert any video format into a webm. This can be
 Convmu
 ------
 
-Requirement: ffmpeg
+Requirement: ffmpeg, parallel
 
-This is a conversion script to mass convert audio files into some other format. Usually used for converting FLAC or other lossless formats into stuff like ogg vorbis or opus. 
+This is a conversion script to mass convert audio files into some other format. Usually used for converting FLAC or other lossless formats into stuff like ogg vorbis or opus.
 
-MP3 is there if someone absolutely must have something in MP3 and will be converted into 320kbp/s in that case. Though converting to another format is usually recommended.
+Usage:
 
+convmu -i [from] -o [to]
 
-Install
--------
-
-Requirement: OS X
-
-This script automatically installs and configures OS X to my liking when reinstalled. This is tweaked from [Ryan's original script](https://github.com/ryanmaclean/OSX-Post-Install-Script) all credits go to him.
-
-
-Pomfinator
-----------
-
-Requirement: OS X, terminal-notifier
-
-This is a port of onodera's Pomf script so that it works properly on OS X. I've removed the scrot capability of the original script because it didn't work out of the box and I couldn't care less. "Requires" terminal-notifier because it sends a notification to the notification center just like the original script does on GNU/Linux.
+Use -help for more info.
 
 
 TheUpdater

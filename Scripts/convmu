@@ -1,91 +1,103 @@
 #!/bin/bash
-# Awesome music conversion script.
+# Music conversion script.
 
-echo "Convert what format? : "
-read from
+ROOT="$PWD"                                            # Folder which the conversion takes place (starts in $PWD unless -d argument is used).
+COVER="-vn"                                            # Will not add embedded music art, unless argument -c is used.
+COVEREXTRACT=false                                     # Will extract the album art if it exists.
+INPUT=""                                               # All files with this extension will be converted
+OUTPUT=""                                              # Into this output
+SUBFOLDER=false                                        # Search through the subfolders or not.
+QUALITY="128"                                          # Bitrate of output.
 
-echo "To format? : "
-read to
+MANUAL="Music conversion tool.
 
-echo "Subdirectories? (y/n) : "
-read subdirectories
+Usage: [-i] [-o] [-d] [-s] [-q] [-c] [-e]
+    -i      Input format.
+    -o      Output format.
+    -d      Specify directory.
+    -s      Go through subdirectories.
+    -q      Specify bitrate (default: 128).
+    -c      Keep covert art embedded.
+    -e      Extract cover art to output folder.
 
-tofolderpath="$PWD"
+ Examples:
+     convert -i flac -o opus
+     convert -i flac -o opus -s
+     convert -i tta -o ogg -d ~/Desktop -s
+     convert -i ape -o opus -d ~/Music -s -q 256 -c
+     convert -i flac -o mp3 -d ~/Music -s -q 320 -e"
 
-cover=false
+# ==================================================================================================
+# Creates output folder and extracts cover art if wanted.
+# It will then export all variables and the function "convert".
+# This is needed due to Parallels only using exported functions.
+# Since the function needs the variables in this script. Thus the variables must be exported as well.
+# ==================================================================================================
 
-if [ $subdirectories = "n" ] 
-then
-	mkdir $to
-	for a in *.$from; do
-		if [ $cover = false ]
-       		then
-                	ffmpeg -i "$a" -an -vcodec copy "$to/cover.jpg"
-                	cover=true
-        	fi 
+function prepare {
+    if [ ! -d "$ROOT/$OUTPUT" ]; then
+        mkdir "$ROOT/$OUTPUT"
+    fi
 
-		if [ $to = "mp3" ]
-		then
-			ffmpeg -i "$a" -b:a 320k "$tofolderpath/$to/${a/$from/$to}"
-  		else
-			ffmpeg -i "$a" -vn "$tofolderpath/$to/${a/$from/$to}"
-		fi
-	done
-else
-	echo "Seperate? (y/n)"
-	read seperate
-	if [ $seperate = "n" ]
-	then
-		mkdir "$to"
-		for subdir in *; do
-			if [[ -d $subdir ]];
-			then
-				cd "$subdir"
-				if [ $to = "mp3" ]
-				then
-		  			for a in *.$from; do
-						ffmpeg -i "$a" -b:a 320k "$tofolderpath/$to/${a/$from/$to}"
-					done
-				elif [ $to = "opus" ]
-				then
-					for a in *.$from; do
-						ffmpeg -i "$a" -vn -b:a 128k "$tofolderpath/$to/${a/$from/$to}"
-					done
-				else
-					for a in *.$from; do
-						ffmpeg -i "$a" -vn "$tofolderpath/$to/${a/$from/$to}"
-					done
-	  			cd "$tofolderpath"
-	  			fi
-			fi
-		done
-	else
-		for subdir in *; do
-			if [[ -d $subdir ]];
-			then
-				cd "$subdir"
-				mkdir $to
-		  	
-				if [ $to = "mp3" ]
-					then
-		  			for a in *.$from; do
-						ffmpeg -i "$a" -b:a 320k "$to/${a/$from/$to}"
-					done
-	  			elif [ $to = "opus" ]
-	  			then
-					for a in *.$from; do
-						ffmpeg -i "$a" -vn -b:a 128k "$to/${a/$from/$to}"
-					done
-				else
-					for a in *.$from; do
-						ffmpeg -i "$a" -vn "$to/${a/$from/$to}"
-					done
-				fi
-	  			cd "$tofolderpath"
-			fi
-		done
-	fi
+    if [ "$COVEREXTRACT" = true ] ; then 
+        ffmpeg -i "$(find "$ROOT" -name "*.$INPUT" | head -n 1)" -an -vcodec copy "$ROOT/$OUTPUT/cover.jpg"     
+    fi
+
+    export -f convert
+    export COVER
+    export COVEREXTRACT
+    export INPUT
+    export OUTPUT
+    export QUALITY
+    export ROOT
+}
+
+# ==================================================================================================
+# Conversion needs an function because Parallel can't handle commands containing Japanese characters.
+# ==================================================================================================
+
+convert () {
+    ffmpeg -i "$1" $COVER -b:a "$QUALITY"k "$ROOT/$OUTPUT/$2.$OUTPUT"
+}
+
+# ==================================================================================================
+# Uses find to search directories for input files. 
+# Parallel will run the exported convert function with the path and basename as parameters.
+# ==================================================================================================
+
+function parallelize {    
+    if [ "$SUBFOLDER" = true ] ; then
+        find "$ROOT" -name "*.$INPUT" | parallel -q convert {} {/.}
+    else
+        find "$ROOT" -maxdepth 1 -name "*.$INPUT" | parallel -q convert {} {/.}
+    fi
+
+    echo "Conversion complete. You can find output at: $ROOT/$OUTPUT"
+}
+
+# ==================================================================================================
+# This will parse the commandline.
+# ==================================================================================================
+
+if [ $# -eq 0 ]; then                                 # Must be at least i and o.
+    echo "$USAGE" >&2
+    exit 1
 fi
+ 
+while getopts i:o:d:q:cse OPT; do                     # Asks for -i, -o
+    case $OPT in
+    i)  INPUT="$OPTARG";;                             # -i is used, input file extension is applied.
+    o)  OUTPUT="$OPTARG";;                            # -o is used, output file extention is applied.
+    d)  ROOT="$OPTARG";;                              # -d is used, another directory that $pwd will be used.
+    s)  SUBFOLDER=true;;                              # -s is used, subdirectories will be searched
+    q)  QUALITY="$OPTARG";;                           # -q is used with a certain bitrate.
+    c)  COVER="";;                                    # Removes -vn which effectively defaults into keeping the embedded cover art.
+    e)  COVEREXTRACT=true;;
+    \?)                                               # Invalid arguments. Show manual and kill.
+        echo "$MANUAL" >&2
+        exit 1 ;;
+    esac
+done
 
-echo
-echo "Complete!"
+prepare
+parallelize

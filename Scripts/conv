@@ -28,15 +28,14 @@ else
 	sound=""
 fi
 
-echo "Extra compression? (y/n)"
-read extracomp
+echo "Limit file size? (y/n)"
+read fschoice
 
-if [ $extracomp = "y" ]
+if [ $fschoice = "n" ] 
 then
-	echo "Insert compression (0-51): "
-	read extraquality
+	fs="-fs 3000000"
 else
-	extraquality="4"
+	fs=""
 fi
 
 echo "Output filename: "
@@ -48,10 +47,10 @@ read subschoice
 if [ $subschoice = "y" ] 
 then
 	ffmpeg -ss "$from" -i "$filepath" -t "$toarg" -vf ass subs.ass
-	ffmpeg -ss "$from" -i "$filepath" -t "$toarg" -vcodec libvpx -crf "$extraquality" -sn -vf scale="$scale":-1,ass=subs.ass -b:v "$quality"K $sound ~/Desktop/"$outputfile".webm
+	ffmpeg -ss "$from" -i "$filepath" -t "$toarg" -vcodec vp8 -crf 4 -sn -vf scale="$scale":-1,ass=subs.ass -b:v "$quality"K $sound $fs ~/Desktop/"$outputfile".webm
 	rm subs.ass
 else
-	ffmpeg -ss "$from" -i "$filepath" -t "$toarg" -crf "$extraquality" -sn -vf scale="$scale":-1 -b:v "$quality"K $sound ~/Desktop/"$outputfile".webm
+	ffmpeg -ss "$from" -i "$filepath" -t "$toarg" -vcodec vp8 -crf 4 -sn -vf scale="$scale":-1 -b:v "$quality"K $sound $fs ~/Desktop/"$outputfile".webm
 fi
 
 echo "Complete as "$outputfile".webm"

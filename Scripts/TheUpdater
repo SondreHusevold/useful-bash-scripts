@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 echo "Mount EFI? (y/n)"
 read mount
@@ -26,12 +26,12 @@ then
 	sudo rm -rf /EFI
 elif [ $update = "FakeSMC" ]	# Upgrades FakeSMC by moving the updated kext to Clover's main kext folder.
 then
-	rm -R /Volumes/EFI/EFI/CLOVER/kexts/10.10/FakeSMC.kext
-	sudo mv /System/Library/Extensions/FakeSMC.kext /Volumes/EFI/EFI/CLOVER/kexts/10.10/FakeSMC.kext
+	rm -R /Volumes/EFI/EFI/CLOVER/kexts/10.11/FakeSMC.kext
+	sudo mv /System/Library/Extensions/FakeSMC.kext /Volumes/EFI/EFI/CLOVER/kexts/10.11/FakeSMC.kext
 
 elif [ $update = "mpv" ]	# Updates mpv via brew
 then	
-	brew rm mpv && brew install --HEAD --with-libaacs --with-libbluray --with-libbs2b --with-libcaca --with-libdvdnav --with-libdvdread --with-official-libass --with-vapoursynth --with-x11 mpv
+	brew rm mpv && brew install --HEAD --with-bundle --with-libaacs --with-libbluray --with-libcaca --with-libdvdnav --with-libdvdread --with-shared --with-vapoursynth mpv
 	brew linkapps mpv
 else
 	echo "Exiting..."
