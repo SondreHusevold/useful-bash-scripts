@@ -1,0 +1,54 @@
+#!/bin/bash
+
+GDRVFILEID="ENTER FILE ID FROM GOOGLE DRIVE"
+LOCALDBFILE="PATH TO LOCAL"
+BACKUP_DIRECTORY="PATH TO AUTO BACKUPS"
+
+# Backs up, removes oldest file if directory exceeds five files.
+function backuplocal {
+	NOW=$(date +"%m-%d-%Y-%H-%M")
+
+	cp $LOCALDBFILE $BACKUP_DIRECTORY/OlympusBackup-$NOW.kdbx
+	a=0;
+	for i in `ls -t $BACKUP_DIRECTORY`;
+	do
+	    a=`expr $a + 1`;
+	    if [ $a  -gt 5 ]; then
+	          echo "Removing $i";
+	          rm -R $BACKUP_DIRECTORY/$i
+	    fi;
+	done
+}
+
+# Gather MD5 and last modified date on remote file.
+GDRVFILESUM=$(gdrive info $GDRVFILEID | grep "Md5sum" | awk '{print $2}')
+GDRVDATE=$(date -d "$(echo $(gdrive info $GDRVFILEID | grep 'Modified' | cut -d\  -f2-))" +%s)
+
+# Gather MD5 and last modified date on local file.
+LOCALDBDATE=$(date -r $LOCALDBFILE +%s)
+LOCALFILESUM=$(md5sum $LOCALDBFILE | awk '{print $1}')
+
+if [ "$GDRVFILESUM" = "$LOCALFILESUM" ]; then
+	echo "Remote and local are identical. Exiting."
+else
+	if [ "$LOCALDBDATE" -ge "$GDRVDATE" ]; then
+		echo "Local is newer. Upload local? (Y/N)"
+		UPLD="Y"
+		read choice
+	else
+		echo "$GDRVFILESUM != $LOCALFILESUM"
+		echo "Remote is newer. Replace local? (Y/N)"
+		UPLD="N"
+		read choice
+	fi
+
+	if [ "$UPLD" = "Y" ] && [ "$choice" = "Y" ]; then
+		echo "Uploading..."
+		backuplocal
+		gdrive update $GDRVFILEID $LOCALDBFILE
+	elif [ "$UPLD" = "N" ] && [ "$choice" = "Y" ]; then
+		echo "Backing up and replacing..."
+		backuplocal
+		gdrive download -f --path $LOCALDBFILE $GDRVFILEID
+	fi
+fi

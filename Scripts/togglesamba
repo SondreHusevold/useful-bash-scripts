@@ -1,0 +1,11 @@
+#!/bin/bash
+string=$(systemctl status smbd);
+
+if [[ $string == *"(running)"* ]]
+then
+	echo "Stopping SMBD..."
+	sudo systemctl stop smbd
+else
+	echo "Starting SMBD..."
+	sudo systemctl start smbd
+fi

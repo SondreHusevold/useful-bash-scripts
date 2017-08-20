@@ -6,6 +6,10 @@
 echo "Filepath (Drag & Drop): "
 read filepath
 
+filepath=$1
+echo $filepath
+echo "Is the path"
+
 echo "From (Hours:Minutes:Seconds): "
 read from
 
@@ -47,10 +51,10 @@ read subschoice
 if [ $subschoice = "y" ] 
 then
 	ffmpeg -ss "$from" -i "$filepath" -t "$toarg" -vf ass subs.ass
-	ffmpeg -ss "$from" -i "$filepath" -t "$toarg" -vcodec vp8 -crf 4 -sn -vf scale="$scale":-1,ass=subs.ass -b:v "$quality"K $sound $fs ~/Desktop/"$outputfile".webm
+	ffmpeg -ss "$from" -i "$filepath" -t "$toarg" -vcodec vp8 -crf 4 -sn -vf scale="$scale":-1,ass=subs.ass -b:v "$quality"K $sound -ac 1 $fs ~/Desktop/"$outputfile".webm
 	rm subs.ass
 else
-	ffmpeg -ss "$from" -i "$filepath" -t "$toarg" -vcodec vp8 -crf 4 -sn -vf scale="$scale":-1 -b:v "$quality"K $sound $fs ~/Desktop/"$outputfile".webm
+	ffmpeg -ss "$from" -i "$filepath" -t "$toarg" -vcodec vp8 -crf 4 -sn -vf scale="$scale":-1 -b:v "$quality"K $sound -ac 1 $fs ~/Desktop/"$outputfile".webm
 fi
 
 echo "Complete as "$outputfile".webm"

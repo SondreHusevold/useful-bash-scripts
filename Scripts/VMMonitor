@@ -1,0 +1,15 @@
+#!/bin/bash
+DISP=2
+DDCDISPLAYINFO=`ddcutil -d $DISP getvcp 60`
+if [[ "$DDCDISPLAYINFO" == *"0x0f"* ]]; then 
+echo "Changing input to HDMI."
+	echo $DDCDISPLAYINFO
+ ddcutil -d $DISP setvcp 60 0x11
+elif [[ "$DDCDISPLAYINFO" == *"0x11"* ]]; then 
+  echo "Changing input to DP"    
+	echo $DDCDISPLAYINFO
+  ddcutil -d $DISP setvcp 60 0x0f
+else
+	echo $DDCDISPLAYINFO
+	VMMonitor
+fi

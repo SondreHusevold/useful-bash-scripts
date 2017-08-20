@@ -8,7 +8,7 @@ INPUT=""                                               # All files with this ext
 OUTPUT=""                                              # Into this output
 SUBFOLDER=false                                        # Search through the subfolders or not.
 QUALITY="128"                                          # Bitrate of output.
-
+SEPERATEOUTPUT=false
 MANUAL="Music conversion tool.
 
 Usage: [-i] [-o] [-d] [-s] [-q] [-c] [-e]
@@ -37,9 +37,19 @@ Usage: [-i] [-o] [-d] [-s] [-q] [-c] [-e]
 function prepare {
     if [ ! -d "$ROOT/$OUTPUT" ]; then
         mkdir "$ROOT/$OUTPUT"
+	# Seperate Output. Create Filename folder with album folders.
+	if [ "$SEPERATEOUTPUT" = true ] ; then
+		find . -type d | while read LINE; 
+		do 
+			mkdir "$ROOT/$OUTPUT/$LINE";
+			if [ "$COVEREXTRACT" = true ] ; then
+        			ffmpeg -i "$(find "$ROOT/$LINE" -name "*.$INPUT" | head -n 1)" -an -vcodec copy "$ROOT/$OUTPUT/$LINE/cover.jpg"
+	    		fi
+		done
+	fi
     fi
 
-    if [ "$COVEREXTRACT" = true ] ; then 
+    if ([ "$COVEREXTRACT" = true ] && [ "$SEPERATEOUTPUT" = false ]) ; then 
         ffmpeg -i "$(find "$ROOT" -name "*.$INPUT" | head -n 1)" -an -vcodec copy "$ROOT/$OUTPUT/cover.jpg"     
     fi
 
@@ -50,14 +60,20 @@ function prepare {
     export OUTPUT
     export QUALITY
     export ROOT
+    export SEPERATEOUTPUT
 }
 
 # ==================================================================================================
-# Conversion needs an function because Parallel can't handle commands containing Japanese characters.
+# Conversion needs a function because Parallel can't handle commands containing Japanese characters.
 # ==================================================================================================
 
 convert () {
-    ffmpeg -i "$1" $COVER -b:a "$QUALITY"k "$ROOT/$OUTPUT/$2.$OUTPUT"
+    if [ "$SEPERATEOUTPUT" = true ] ; then
+	OUTPUTFOLDER=$(awk -F'/' '{print $(NF-1)}' <<< $1)
+    	ffmpeg -i "$1" $COVER -b:a "$QUALITY"k "$ROOT/$OUTPUT/$OUTPUTFOLDER/$2.$OUTPUT"
+    else
+	ffmpeg -i "$1" $COVER -b:a "$QUALITY"k "$ROOT/$OUTPUT/$2.$OUTPUT"
+    fi
 }
 
 # ==================================================================================================
@@ -84,13 +100,14 @@ if [ $# -eq 0 ]; then                                 # Must be at least i and o
     exit 1
 fi
  
-while getopts i:o:d:q:cse OPT; do                     # Asks for -i, -o
+while getopts i:o:d:q:csea OPT; do                     # Asks for -i, -o
     case $OPT in
     i)  INPUT="$OPTARG";;                             # -i is used, input file extension is applied.
     o)  OUTPUT="$OPTARG";;                            # -o is used, output file extention is applied.
     d)  ROOT="$OPTARG";;                              # -d is used, another directory that $pwd will be used.
     s)  SUBFOLDER=true;;                              # -s is used, subdirectories will be searched
     q)  QUALITY="$OPTARG";;                           # -q is used with a certain bitrate.
+    a)  SEPERATEOUTPUT=true;;			      # -a is used, all folders will have their own output folder.
     c)  COVER="";;                                    # Removes -vn which effectively defaults into keeping the embedded cover art.
     e)  COVEREXTRACT=true;;
     \?)                                               # Invalid arguments. Show manual and kill.
